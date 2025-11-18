@@ -1,0 +1,118 @@
+
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Otaku Lab - Galleria</title>
+<link rel="icon" href="marino2.jpg">
+
+<style>
+
+/* --- STILE BASE DELLA PAGINA --- */
+body {
+    background-color: #87CEEB; /* celeste */
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: 'Poppins', 'Arial', sans-serif;
+}
+
+/* --- TITOLO RESPONSIVE --- */
+h1 {
+    color: #0d3b66;
+    font-size: 3em;
+    margin: 20px 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+h1 img {
+    height: 2em;
+}
+
+/* --- GALLERIA IMMAGINI --- */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 10px;
+    gap: 15px;
+}
+
+.rounded-img {
+    width: 18%;        /* misura standard desktop */
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.rounded-img:hover {
+    transform: scale(1.05);
+}
+
+/* --- BOTTONE "TORNA ALLA HOME" --- */
+.home-btn {
+    display: inline-block;
+    margin: 30px auto;
+    padding: 12px 25px;
+    background: #1abc9c;
+    color: white;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.home-btn:hover {
+    background: #16a085;
+    transform: translateY(-3px);
+}
+
+/* --- RESPONSIVE PER SCHERMI PIÙ PICCOLI --- */
+@media (max-width: 900px) {
+    .rounded-img { width: 28%; }
+}
+
+@media (max-width: 600px) {
+    h1 { font-size: 2.2em; }
+    h1 img { height: 1.4em; }
+    .rounded-img { width: 40%; }
+}
+
+@media (max-width: 400px) {
+    .rounded-img { width: 48%; }
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>
+  <img src="marino2.jpg" alt="logo">
+  GALLERIA
+</h1>
+
+<div class="gallery">
+  <img src="1.webp" class="rounded-img">
+  <img src="2.webp" class="rounded-img">
+  <img src="3.webp" class="rounded-img">
+  <img src="4.webp" class="rounded-img">
+  <img src="5.webp" class="rounded-img">
+  <img src="6.webp" class="rounded-img">
+  <img src="7.webp" class="rounded-img">
+  <img src="8.webp" class="rounded-img">
+  <img src="9.webp" class="rounded-img">
+  <img src="10.webp" class="rounded-img">
+</div>
+
+<!-- BOTTONE PER TORNARE ALLA HOME -->
+<a href="index.html" class="home-btn">⬅ Torna alla Home</a>
+
+</body>
+</html>

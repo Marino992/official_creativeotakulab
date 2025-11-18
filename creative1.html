@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creative Otaku Lab</title>
+  <link rel="icon" href="marino2.jpg">
+
+  <style>
+
+    /* --- STILE GENERALE --- */
+    body {
+      background-color: #87CEEB; 
+      font-family: 'Poppins', 'Arial', sans-serif';
+      margin: 0;
+      padding: 0;
+      color: #0d3b66;
+      text-align: center;
+    }
+
+    /* --- TITOLO --- */
+    h1 {
+      font-size: 3em;
+      margin: 20px 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    h1 img {
+      height: 2em;
+    }
+
+    /* --- SOTTOTITOLO --- */
+    h3 {
+      font-size: 1.6em;
+      max-width: 850px;
+      margin: 20px auto;
+      line-height: 1.6;
+      padding: 0 20px;
+    }
+
+    /* --- LISTA --- */
+    ul {
+      max-width: 850px;
+      margin: 20px auto;
+      padding: 0 30px;
+      text-align: left;
+    }
+
+    li {
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      line-height: 1.6;
+    }
+
+    /* --- LINK --- */
+    a {
+      color: #1abc9c;
+      font-weight: bold;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    a:hover {
+      color: #16a085;
+      text-decoration: underline;
+    }
+
+    /* --- BOTTONE "TORNA ALLA HOME" --- */
+    .home-btn {
+      display: inline-block;
+      margin: 30px auto;
+      padding: 12px 25px;
+      background: #1abc9c;
+      color: white;
+      text-decoration: none;
+      font-size: 1.2em;
+      font-weight: bold;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    .home-btn:hover {
+      background: #16a085;
+      transform: translateY(-3px);
+    }
+
+    /* ------- RESPONSIVE ------- */
+    @media (max-width: 780px) {
+      h1 { font-size: 2.4em; }
+      h1 img { height: 1.6em; }
+      h3 { font-size: 1.3em; }
+      li { font-size: 1.1em; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 2em; }
+      h1 img { height: 1.4em; }
+      h3 { font-size: 1.15em; }
+      ul { padding: 0 20px; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+<h1>
+  <img src="marino2.jpg" alt="Logo">
+  Chi siamo
+</h1>
+
+<h3>
+  Siamo tre ragazzi appassionati di anime e manga.<br>
+  Desideriamo trasformare l'arte degli illustratori e dei<br>
+  mangaka in oggetti utili e belli per gli appassionati.
+</h3> 
+
+<ul>
+  <li><strong>Marianna</strong>: studentessa di medicina e artigiana, esperta di lavoretti in fimo e creazione di gadget.</li>
+  <li><strong>Giovanna</strong>: responsabile dei profili social, venditrice e disegnatrice.</li>
+  <li><strong>Marino</strong>: fotografo e <strong>sviluppatore di siti web</strong> (tra cui questo!). Profilo LinkedIn:
+      <a href="https://www.linkedin.com/in/marino-daniele-36bba5222/" target="_blank">Marino Daniele</a>
+  </li>
+</ul>
+
+<!-- BOTTONE PER TORNARE ALLA HOME -->
+<a href="index.html" class="home-btn">⬅ Torna alla Home</a>
+
+</body>
+</html>
