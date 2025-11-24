@@ -1,71 +1,163 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Pagina in aggiornamento - Creative Otaku Lab</title>
-  <link rel="icon" href="marino2.jpg">
-  <style>
-    body {
-      background-color: #87CEEB; /* sfondo celeste uniforme */
-      font-family: 'Poppins', 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      color: #0d3b66; /* navy blue testo */
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh; /* altezza viewport completa */
-      text-align: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I nostri prodotti</title>
 
-    .update-box {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-      max-width: 600px;
-    }
+    <link rel="icon" href="marino2.jpg">
 
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
+    <style>
+        /* Sfondo celestino */
+        body {
+            background-color: #B2EBF2; /* celestino chiaro */
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-    p {
-      font-size: 1.2em;
-      line-height: 1.5;
-      margin-bottom: 30px;
-    }
+        /* Contenitore per il titolo */
+        header {
+            text-align: center;
+            padding: 50px 20px; /* distanza dall'alto e padding laterale per mobile */
+        }
 
-    /* Pulsante Home */
-    .home-btn {
-      display: inline-block;
-      padding: 12px 25px;
-      background: #0d3b66;       /* navy blue */
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
+        /* Titolo moderno */
+        h1 {
+            color: #001F3F; /* blu navy */
+            font-size: 3em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin: 0;
+        }
 
-    .home-btn:hover {
-      background: #1abc9c;       /* turchese chiaro al passaggio del mouse */
-      transform: translateY(-2px);
-      box-shadow: 0 6px 10px rgba(0,0,0,0.15);
-    }
-  </style>
+        /* Stile per la descrizione */
+        .descrizione {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            color: #001F3F; /* blu navy */
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .descrizione h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        /* Immagine centrata e rotonda */
+        .prodotto-img {
+            display: block;
+            margin: 30px auto;
+            width: 40%; /* dimensione rispetto all'originale */
+            border-radius: 50%; /* rende l'immagine rotonda */
+            max-width: 300px; /* limite massimo per schermi grandi */
+            height: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2em;
+            }
+            .descrizione {
+                font-size: 1em;
+                padding: 15px;
+            }
+            .prodotto-img {
+                width: 60%; /* più grande su schermi piccoli */
+            }
+        }
+    </style>
 </head>
 <body>
+    <header>
+        <h1>I nostri prodotti</h1>
+    </header>
 
-  <div class="update-box">
-    <h1>Pagina in aggiornamento</h1>
-    <p>Stiamo lavorando per aggiornare questa sezione del sito.<br>
-       Torna presto a trovarci!</p>
-    <a href="index.html" class="home-btn">Torna alla Home</a>
-  </div>
+    <section class="descrizione">
+        <h2>Portachiavi e gadget in plastica termica</h2>
+        <p>
+            I nostri portachiavi e gadget sono realizzati in <strong>plastica termica</strong>, un materiale speciale che si ritrae in forno. 
+            Ogni pezzo è unico perché <strong>il disegno viene creato interamente a mano</strong> e successivamente colorato con cura. 
+            Questo processo artigianale garantisce prodotti originali, colorati e perfetti per collezionisti, appassionati di anime e manga, o come piccoli regali personalizzati. 
+            Leggeri, resistenti e dal design esclusivo, i nostri portachiavi e gadget portano creatività e passione ovunque tu voglia!
+        </p>
+    </section>
+
+    <!-- Immagine rotonda centrata -->
+    <img src="4.webp" alt="Portachiavi in plastica termica" class="prodotto-img">
+
+<section class="descrizione">
+    <h2>Segnalibri in cartoncino</h2>
+    <p>
+        I nostri segnalibri sono realizzati in <strong>cartoncino di alta qualità</strong> e stampati con stampante a getto di inchiostro impostata su <strong>alta qualità di stampa</strong>. 
+        Grazie a questo processo, ogni segnalibro è nitido, colorato e perfetto per collezionisti o come piccolo regalo speciale. 
+        Resistenti, leggeri e dal design accurato, i nostri segnalibri portano creatività e passione ovunque tu voglia!
+    </p>
+
+    <!-- Immagine del prodotto -->
+    <img src="7.webp" alt="Segnalibri in cartoncino" class="prodotto-img">
+</section>
+
+<section class="descrizione">
+    <h2>Quadretti tridimensionali</h2>
+    <p>
+        I nostri quadretti tridimensionali sono realizzati con <strong>cornice in legno</strong> e personaggi in <strong>cartoncino di alta qualità</strong>, creando un effetto <strong>3D realistico e accattivante</strong>. 
+        Ogni composizione è studiata per dare profondità e movimento, rendendo ogni quadretto un oggetto unico, perfetto da esporre o regalare agli appassionati di anime e manga. 
+        Grazie alla cura nella disposizione degli elementi e ai dettagli accurati, i nostri quadretti portano colore, creatività e stile in ogni ambiente!
+    </p>
+
+    <!-- Immagine del prodotto -->
+    <img src="11.jpg" alt="Quadretto tridimensionale con cornice in legno" class="prodotto-img">
+</section>
+
+<section class="descrizione">
+    <h2>Altri prodotti in arrivo</h2>
+    <p>
+        Stiamo preparando tante novità per i nostri collezionisti! Restate sintonizzati per nuovi portachiavi, segnalibri, quadretti e altre sorprese creative. 
+        Tutti i prodotti saranno realizzati con la stessa cura, attenzione ai dettagli e passione per i personaggi che amate.
+    </p>
+
+    <!-- Bottone torna a home -->
+    <div style="text-align: center; margin-top: 30px;">
+        <a href="index.html" class="btn-home">Torna a Home</a>
+    </div>
+</section>
+
+<style>
+    /* Stile bottone */
+    .btn-home {
+        display: inline-block;
+        padding: 12px 25px;
+        font-size: 1.1em;
+        color: #fff;
+        background-color: #001F3F; /* blu navy */
+        text-decoration: none;
+        border-radius: 8px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .btn-home:hover {
+        background-color: #003366; /* leggermente più scuro al passaggio */
+        transform: scale(1.05);
+    }
+
+    /* Responsive bottone */
+    @media (max-width: 600px) {
+        .btn-home {
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+    }
+</style>
+
+
+
 
 </body>
 </html>
+
