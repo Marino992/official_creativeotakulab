@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Giochi Anime e Snake</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="marino2.jpg">
+
+  <style>
+    /* ...tutto il tuo CSS rimane invariato... */
+  </style>
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Giochi Anime e Snake</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    /* Contenitore quiz */
+    #quiz-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #3498db;
+      color: white;
+      transition: background-color 0.2s;
+      max-width: 90%;
+      box-sizing: border-box;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    /* Immagine quiz */
+    #quiz-image {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      object-fit: cover;
+      border: 3px solid #3498db;
+      max-width: 40%;
+    }
+
+    /* Snake */
+    #snake-game {
+      text-align: center;
+      margin-bottom: 50px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    canvas {
+      background-color: #222;
+      display: block;
+      margin: 20px auto;
+      border: 3px solid #3498db;
+      border-radius: 10px;
+      width: 100%; /* canvas responsive */
+      height: auto;
+    }
+
+    #score {
+      font-size: 20px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Quiz -->
+<div id="quiz-container"></div>
+
+<!-- Snake -->
+<div id="snake-game">
+  <h2>Gioca a Snake!</h2>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div id="score">Punteggio: 0</div>
+  <button id="start-snake">Avvia Snake</button>
+</div>
+
+<script>
+/* ==================== QUIZ ANIME ==================== */
+const quiz = [
+  { question: "Chi è il protagonista di 'Naruto'?", answers: ["Sasuke", "Naruto", "Kakashi", "Sakura"], correct: "Naruto" },
+  { question: "In quale anime si trova il personaggio Luffy?", answers: ["Bleach", "One Piece", "Dragon Ball", "Attack on Titan"], correct: "One Piece" },
+  { question: "Chi ha creato 'Death Note'?", answers: ["Eiichiro Oda", "Tsugumi Ohba", "Masashi Kishimoto", "Akira Toriyama"], correct: "Tsugumi Ohba" },
+  { question: "Qual è il potere principale di Goku in Dragon Ball?", answers: ["Sharingan", "Ki", "Alchimia", "Nen"], correct: "Ki" },
+  { question: "Chi è il Sensei di Naruto?", answers: ["Kakashi", "Itachi", "Jiraiya", "Orochimaru"], correct: "Kakashi" },
+  { question: "In quale manga compare il personaggio Tanjiro?", answers: ["Demon Slayer", "One Punch Man", "Tokyo Ghoul", "My Hero Academia"], correct: "Demon Slayer" },
+  { question: "Chi è il nemico principale di Luffy nella saga di Wano?", answers: ["Kaido", "Naruto", "Frieza", "Light Yagami"], correct: "Kaido" },
+  { question: "In 'Attack on Titan', come si chiama il protagonista?", answers: ["Eren", "Levi", "Armin", "Mikasa"], correct: "Eren" },
+  { question: "Chi è il creatore di 'One Piece'?", answers: ["Eiichiro Oda", "Masashi Kishimoto", "Tite Kubo", "Akira Toriyama"], correct: "Eiichiro Oda" },
+  { question: "Chi dice la frase 'I am gonna be King of the Pirates'?", answers: ["Luffy", "Zoro", "Sanji", "Nami"], correct: "Luffy" }
+];
+
+let currentQuestion = 0;
+let scoreQuiz = 0;
+const quizContainer = document.getElementById('quiz-container');
+
+function showStartScreen() {
+  quizContainer.innerHTML = `
+    <img id="quiz-image" src="marino2.jpg" alt="Immagine quiz">
+    <h2>Benvenuto al Quiz Anime e Manga!</h2>
+    <button id="start-btn">Quiz Anime</button>
+  `;
+  document.getElementById('start-btn').onclick = () => {
+    currentQuestion = 0;
+    scoreQuiz = 0;
+    showQuestion();
+  };
+}
+
+function showQuestion() {
+  const q = quiz[currentQuestion];
+  quizContainer.innerHTML = `
+    <img id="quiz-image" src="marino2.jpg" alt="Immagine quiz">
+    <h2>${q.question}</h2>
+    <div id="answers"></div>
+  `;
+  const answersDiv = document.getElementById('answers');
+  q.answers.forEach(answer => {
+    const button = document.createElement('button');
+    button.textContent = answer;
+    button.onclick = () => checkAnswer(answer);
+    answersDiv.appendChild(button);
+  });
+}
+
+function checkAnswer(answer) {
+  if(answer === quiz[currentQuestion].correct) scoreQuiz++;
+  currentQuestion++;
+  if(currentQuestion < quiz.length) {
+    showQuestion();
+  } else {
+    showScore();
+  }
+}
+
+function showScore() {
+  const percent = (scoreQuiz / quiz.length) * 100;
+  let message = '';
+  if(percent >= 70) {
+    message = `🎉 Complimenti! Hai risposto correttamente al ${scoreQuiz} su ${quiz.length} (${Math.round(percent)}%) delle domande!`;
+  } else {
+    message = `🙂 Hai risposto correttamente a ${scoreQuiz} su ${quiz.length} (${Math.round(percent)}%). Non preoccuparti, puoi sempre migliorare!`;
+  }
+
+  quizContainer.innerHTML = `
+    <img id="quiz-image" src="marino2.jpg" alt="Immagine quiz">
+    <h2>${message}</h2>
+    <button id="restart-btn">Ricomincia</button>
+  `;
+  document.getElementById('restart-btn').onclick = showStartScreen;
+}
+
+// Avvio quiz
+showStartScreen();
+
+/* ==================== SNAKE GAME ==================== */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const box = 20;
+let snake = [];
+let food = {};
+let direction = '';
+let scoreSnake = 0;
+let gameInterval = null;
+
+function initSnake() {
+  snake = [{x: 8 * box, y: 8 * box}];
+  direction = '';
+  scoreSnake = 0;
+  document.getElementById('score').textContent = 'Punteggio: 0';
+  placeFood();
+  if(gameInterval) clearInterval(gameInterval);
+  gameInterval = setInterval(draw, 100);
+}
+
+function placeFood() {
+  food.x = Math.floor(Math.random() * 20) * box;
+  food.y = Math.floor(Math.random() * 20) * box;
+}
+
+document.addEventListener('keydown', changeDirection);
+function changeDirection(event) {
+  if(event.key === "ArrowUp" && direction !== 'DOWN') direction = 'UP';
+  else if(event.key === "ArrowDown" && direction !== 'UP') direction = 'DOWN';
+  else if(event.key === "ArrowLeft" && direction !== 'RIGHT') direction = 'LEFT';
+  else if(event.key === "ArrowRight" && direction !== 'LEFT') direction = 'RIGHT';
+  else if(event.key === "w" && direction !== 'DOWN') direction = 'UP';
+  else if(event.key === "s" && direction !== 'UP') direction = 'DOWN';
+  else if(event.key === "a" && direction !== 'RIGHT') direction = 'LEFT';
+  else if(event.key === "d" && direction !== 'LEFT') direction = 'RIGHT';
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#222";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#e74c3c";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  for(let i=0;i<snake.length;i++){
+    ctx.fillStyle = i===0 ? "#3498db" : "#2980b9";
+    ctx.fillRect(snake[i].x, snake[i].y, box, box);
+  }
+
+  let snakeX = snake[0].x;
+  let snakeY = snake[0].y;
+
+  if(direction === 'UP') snakeY -= box;
+  else if(direction === 'DOWN') snakeY += box;
+  else if(direction === 'LEFT') snakeX -= box;
+  else if(direction === 'RIGHT') snakeX += box;
+
+  if(snakeX === food.x && snakeY === food.y){
+    scoreSnake++;
+    document.getElementById('score').textContent = 'Punteggio: ' + scoreSnake;
+    placeFood();
+  } else {
+    snake.pop();
+  }
+
+  let newHead = {x: snakeX, y: snakeY};
+
+  if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
+    clearInterval(gameInterval);
+    alert("Game Over! Punteggio: " + scoreSnake);
+    return;
+  }
+
+  snake.unshift(newHead);
+}
+
+function collision(head, array){
+  for(let i=0;i<array.length;i++){
+    if(head.x === array[i].x && head.y === array[i].y) return true;
+  }
+  return false;
+}
+
+document.getElementById('start-snake').addEventListener('click', initSnake);
+</script>
+
+<div style="text-align:center; margin-bottom: 15px; color:#555; font-size:14px;">
+  ⚠️ Il gioco Snake è giocabile solo da PC con tastiera
+</div>
+
+
+<!-- Pulsante Home -->
+<div style="text-align: center; margin-bottom: 30px;">
+  <a href="index.html">
+    <button>Home</button>
+  </a>
+</div>
+
+
+</body>
+</html>
+
