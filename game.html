@@ -1,294 +1,596 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE_BOSSENGE</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Courier New', Courier, monospace; touch-action: none; user-select: none; }
+        #overlay { position: absolute; top: 10px; left: 10px; color: #00ffff; pointer-events: none; z-index: 10; font-size: 10px; opacity: 0.7; }
+        
+        #game-ui { position: absolute; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+        .stats-container { position: absolute; bottom: 20px; width: 100%; display: flex; justify-content: space-around; }
+        .bar-wrapper { width: 40%; background: rgba(0, 255, 255, 0.1); border: 1px solid #00ffff; height: 20px; position: relative; }
+        .bar-fill { height: 100%; transition: width 0.1s; }
+        #player-health-bar { background: #00ff00; width: 100%; }
+        #boss-health-bar { background: #ff0044; width: 100%; }
+        .label { color: #00ffff; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; }
 
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini Giochi Anime e Snake</title>
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="marino2.jpg">
-
-  <style>
-    /* ...tutto il tuo CSS rimane invariato... */
-  </style>
-
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini Giochi Anime e Snake</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px 0;
-    }
-
-    /* Contenitore quiz */
-    #quiz-container {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      max-width: 500px;
-      width: 90%;
-      text-align: center;
-      margin-bottom: 50px;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-    }
-
-    button {
-      display: block;
-      margin: 10px auto;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      background-color: #3498db;
-      color: white;
-      transition: background-color 0.2s;
-      max-width: 90%;
-      box-sizing: border-box;
-    }
-
-    button:hover {
-      background-color: #2980b9;
-    }
-
-    /* Immagine quiz */
-    #quiz-image {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      margin-bottom: 20px;
-      object-fit: cover;
-      border: 3px solid #3498db;
-      max-width: 40%;
-    }
-
-    /* Snake */
-    #snake-game {
-      text-align: center;
-      margin-bottom: 50px;
-      width: 90%;
-      max-width: 500px;
-    }
-
-    canvas {
-      background-color: #222;
-      display: block;
-      margin: 20px auto;
-      border: 3px solid #3498db;
-      border-radius: 10px;
-      width: 100%; /* canvas responsive */
-      height: auto;
-    }
-
-    #score {
-      font-size: 20px;
-      color: #333;
-    }
-  </style>
+        #game-over {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #ff0044; font-size: 40px; text-align: center; display: none;
+            background: rgba(0,0,0,0.9); padding: 30px; border: 2px solid #ff0044;
+            pointer-events: auto; z-index: 100;
+        }
+        button { background: #00ffff; border: none; padding: 15px 30px; cursor: pointer; font-family: inherit; font-weight: bold; margin-top: 20px; }
+    </style>
 </head>
 <body>
+    <div id="overlay">THE BOSSENGE<br>ARMI: FUOCHI D'ARTIFICIO<br>COLPISCI GLI OCCHI</div>
+    
+    <div id="game-ui">
+        <div class="stats-container">
+            <div>
+                <div class="label">GIOCATORE</div>
+                <div class="bar-wrapper"><div id="player-health-bar" class="bar-fill"></div></div>
+            </div>
+            <div>
+                <div class="label">BOSSENGE</div>
+                <div class="bar-wrapper"><div id="boss-health-bar" class="bar-fill"></div></div>
+            </div>
+        </div>
+    </div>
 
-<!-- Quiz -->
-<div id="quiz-container"></div>
+    <div id="game-over">
+        <div id="status-text">SYSTEM FAILURE</div>
+        <button onclick="location.reload()">RICOMINCIA</button>
+    </div>
 
-<!-- Snake -->
-<div id="snake-game">
-  <h2>Gioca a Snake!</h2>
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
-  <div id="score">Punteggio: 0</div>
-  <button id="start-snake">Avvia Snake</button>
-</div>
+    <script type="module">
+        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js';
+
+        // --- CORE INVARIATO ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        const mouse = new THREE.Vector2(0.5, 0.5);
+        const targetMouse = new THREE.Vector2(0.5, 0.5);
+        const raycaster = new THREE.Raycaster();
+
+        const voxVertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const voxFragmentShader = `
+            varying vec2 vUv;
+            uniform float uTime;
+            uniform vec2 uMouse;
+            uniform float uHitEffect;
+
+            float sdEye(vec2 p, float width, float height) {
+                p.y += p.x * p.x * 0.6; 
+                return length(p / vec2(width, height)) - 1.0;
+            }
+
+            void main() {
+                vec2 uv = vUv;
+                vec3 bgCol = vec3(0.02, 0.06, 0.12);
+                vec3 eyeRed = mix(vec3(1.0, 0.0, 0.15), vec3(1.0, 1.0, 1.0), uHitEffect);
+                vec3 mouthCyan = vec3(0.5, 1.0, 1.0);
+
+                vec2 eyeLook = (uMouse - 0.5) * 0.15;
+
+                vec2 pL = (uv - vec2(0.25, 0.65)) * 1.5;
+                float maskL = smoothstep(0.01, -0.01, sdEye(pL, 0.35, 0.18));
+                vec2 pR = (uv - vec2(0.75, 0.65)) * 1.5;
+                float maskR = smoothstep(0.01, -0.01, sdEye(pR, 0.38, 0.22));
+
+                float pupL = smoothstep(0.02, 0.01, abs(uv.x - 0.25 - eyeLook.x)) * step(0.58 + eyeLook.y, uv.y) * step(uv.y, 0.72 + eyeLook.y);
+                float wave = sin(uv.y * 60.0 - uTime * 20.0) * 0.015;
+                float pupR = smoothstep(0.025, 0.01, abs(uv.x - 0.75 - eyeLook.x + wave)) * maskR;
+
+                float browL = smoothstep(0.02, 0.0, abs((uv.y - 0.92) + (uv.x - 0.22) * 0.4)) * step(uv.x, 0.32) * step(0.18, uv.x);
+                float browR = smoothstep(0.02, 0.0, abs((uv.y - 0.92) - (uv.x - 0.78) * 0.4)) * step(uv.x, 0.82) * step(0.68, uv.x);
+
+                vec2 mUv = uv - vec2(0.5, 0.12);
+                float smileCurve = mUv.y - pow(mUv.x, 2.0) * 1.2; 
+                float mouthMask = smoothstep(0.10, 0.08, abs(smileCurve)) * step(abs(mUv.x), 0.40) * step(uv.y, 0.45);
+                float teethZig = abs(fract(uv.x * 14.0) - 0.5) * 0.10;
+                float teethMask = step(smileCurve + 0.03, teethZig) * step(teethZig, smileCurve + 0.12);
+
+                vec3 color = bgCol;
+                color = mix(color, eyeRed, maskL + maskR);
+                color = mix(color, vec3(0.0), browL + browR); 
+                color = mix(color, vec4(1.0).rgb, pupL * maskL); 
+                color = mix(color, vec3(0.0), pupR);       
+                color = mix(color, mouthCyan, mouthMask);
+                color = mix(color, bgCol * 0.3, mouthMask * teethMask); 
+
+                float scanline = sin(uv.y * 1000.0) * 0.02;
+                gl_FragColor = vec4(color + scanline, 1.0);
+            }
+        `;
+
+        const frameGeom = new THREE.BoxGeometry(4.5, 3.5, 1);
+        const frameMat = new THREE.MeshStandardMaterial({ color: 0x050505 });
+        const cabinet = new THREE.Mesh(frameGeom, frameMat);
+        scene.add(cabinet);
+
+        const screenGeom = new THREE.PlaneGeometry(4.2, 3.2);
+        const screenMat = new THREE.ShaderMaterial({
+            uniforms: { 
+                uTime: { value: 0 }, 
+                uMouse: { value: mouse }, 
+                uHitEffect: { value: 0 }
+            },
+            vertexShader: voxVertexShader,
+            fragmentShader: voxFragmentShader
+        });
+        const screen = new THREE.Mesh(screenGeom, screenMat);
+        screen.position.z = 0.51;
+        cabinet.add(screen);
+
+        const createAntenna = (x, rot) => {
+            const group = new THREE.Group();
+            const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2), frameMat);
+            const tip = new THREE.Mesh(new THREE.SphereGeometry(0.08), frameMat);
+            tip.position.y = 0.6; group.add(rod, tip);
+            group.position.set(x, 2, 0); group.rotation.z = rot;
+            return group;
+        };
+        cabinet.add(createAntenna(-0.7, 0.4), createAntenna(0.7, -0.4));
+
+        scene.add(new THREE.PointLight(0x00ffff, 2, 10), new THREE.AmbientLight(0xffffff, 0.6));
+        camera.position.z = 6;
+
+        // --- NUOVA LOGICA FUOCHI D'ARTIFICIO ---
+
+        const gameState = {
+            playerHealth: 100,
+            bossHealth: 500,
+            isGameOver: false,
+            particles: []
+        };
+
+        const pBar = document.getElementById('player-health-bar');
+        const bBar = document.getElementById('boss-health-bar');
+        const goScreen = document.getElementById('game-over');
+
+        // Funzione per creare i fuochi d'artificio
+        function createFirework(point, isHit) {
+            const count = 30;
+            const color = isHit ? 0x00ffff : 0xff0044;
+            const geometry = new THREE.SphereGeometry(0.02, 4, 4);
+            
+            for (let i = 0; i < count; i++) {
+                const material = new THREE.MeshBasicMaterial({ color: color, transparent: true });
+                const p = new THREE.Mesh(geometry, material);
+                
+                p.position.copy(point);
+                
+                // Esplosione sferica
+                const phi = Math.random() * Math.PI * 2;
+                const theta = Math.random() * Math.PI;
+                const speed = 0.05 + Math.random() * 0.1;
+                
+                p.userData = {
+                    velocity: new THREE.Vector3(
+                        Math.sin(theta) * Math.cos(phi) * speed,
+                        Math.sin(theta) * Math.sin(phi) * speed,
+                        Math.cos(theta) * speed
+                    ),
+                    opacity: 1.0
+                };
+                
+                scene.add(p);
+                gameState.particles.push(p);
+            }
+        }
+
+        // Sistema Fulmini Boss
+        const lightningLine = new THREE.Line(
+            new THREE.BufferGeometry(),
+            new THREE.LineBasicMaterial({ color: 0x00ffff })
+        );
+        scene.add(lightningLine);
+
+        function bossAttack() {
+            if (Math.random() > 0.96 && !gameState.isGameOver) {
+                const points = [];
+                let curr = new THREE.Vector3(0, 0, 0.5);
+                for(let i=0; i<8; i++) {
+                    curr.add(new THREE.Vector3((Math.random()-0.5)*3, (Math.random()-0.5)*3, 0.8));
+                    points.push(curr.clone());
+                }
+                lightningLine.geometry.setFromPoints(points);
+                gameState.playerHealth -= 4;
+                updateStats();
+                setTimeout(() => lightningLine.geometry.setFromPoints([]), 100);
+            }
+        }
+
+        function updateStats() {
+            pBar.style.width = `${Math.max(0, gameState.playerHealth)}%`;
+            bBar.style.width = `${(gameState.bossHealth / 500) * 100}%`;
+            
+            if (gameState.playerHealth <= 0) endGame("BOSSENGE DOMINATED YOU");
+            if (gameState.bossHealth <= 0) endGame("BOSSENGE DELETED");
+        }
+
+        function endGame(msg) {
+            gameState.isGameOver = true;
+            goScreen.style.display = "block";
+            document.getElementById('status-text').innerText = msg;
+        }
+
+        // Gestione Click/Touch per colpire
+        function handleAction(clientX, clientY) {
+            if (gameState.isGameOver) return;
+
+            const ndc = new THREE.Vector2(
+                (clientX / window.innerWidth) * 2 - 1,
+                -(clientY / window.innerHeight) * 2 + 1
+            );
+
+            raycaster.setFromCamera(ndc, camera);
+            const intersects = raycaster.intersectObject(screen);
+
+            if (intersects.length > 0) {
+                const hit = intersects[0];
+                const uv = hit.uv;
+                
+                // Controllo se il colpo è sugli occhi
+                const hitEye = (uv.y > 0.58 && uv.y < 0.75) && ((uv.x > 0.15 && uv.x < 0.38) || (uv.x > 0.62 && uv.x < 0.85));
+                
+                if (hitEye) {
+                    gameState.bossHealth -= 10; // Ogni fuoco d'artificio ben piazzato vale 5 colpi
+                    screenMat.uniforms.uHitEffect.value = 1.0;
+                    createFirework(hit.point, true);
+                } else {
+                    createFirework(hit.point, false);
+                }
+                updateStats();
+            }
+        }
+
+        window.addEventListener('mousedown', (e) => handleAction(e.clientX, e.clientY));
+        window.addEventListener('touchstart', (e) => handleAction(e.touches[0].clientX, e.touches[0].clientY));
+
+        // Animazione particelle e loop
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = performance.now() * 0.001;
+            
+            // Smoothing movimento testa
+            targetMouse.x = mouse.x; // Segue il cursore per l'eye tracking
+            screenMat.uniforms.uTime.value = t;
+            screenMat.uniforms.uHitEffect.value *= 0.9;
+
+            // Update particelle fuochi d'artificio
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                const p = gameState.particles[i];
+                p.position.add(p.userData.velocity);
+                p.userData.velocity.y -= 0.002; // gravità
+                p.userData.opacity -= 0.02;
+                p.material.opacity = p.userData.opacity;
+                
+                if (p.userData.opacity <= 0) {
+                    scene.remove(p);
+                    gameState.particles.splice(i, 1);
+                }
+            }
+
+            if (!gameState.isGameOver) {
+                bossAttack();
+                cabinet.rotation.y = (mouse.x - 0.5) * 0.4;
+                cabinet.rotation.x = (mouse.y - 0.5) * -0.2;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Tracking mouse per gli occhi
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX / window.innerWidth;
+            mouse.y = 1.0 - (e.clientY / window.innerHeight);
+        });
+
+        animate();
+    </script>
 
 <script>
-/* ==================== QUIZ ANIME ==================== */
-const quiz = [
-  { question: "Chi è il protagonista di 'Naruto'?", answers: ["Sasuke", "Naruto", "Kakashi", "Sakura"], correct: "Naruto" },
-  { question: "In quale anime si trova il personaggio Luffy?", answers: ["Bleach", "One Piece", "Dragon Ball", "Attack on Titan"], correct: "One Piece" },
-  { question: "Chi ha creato 'Death Note'?", answers: ["Eiichiro Oda", "Tsugumi Ohba", "Masashi Kishimoto", "Akira Toriyama"], correct: "Tsugumi Ohba" },
-  { question: "Qual è il potere principale di Goku in Dragon Ball?", answers: ["Sharingan", "Ki", "Alchimia", "Nen"], correct: "Ki" },
-  { question: "Chi è il Sensei di Naruto?", answers: ["Kakashi", "Itachi", "Jiraiya", "Orochimaru"], correct: "Kakashi" },
-  { question: "In quale manga compare il personaggio Tanjiro?", answers: ["Demon Slayer", "One Punch Man", "Tokyo Ghoul", "My Hero Academia"], correct: "Demon Slayer" },
-  { question: "Chi è il nemico principale di Luffy nella saga di Wano?", answers: ["Kaido", "Naruto", "Frieza", "Light Yagami"], correct: "Kaido" },
-  { question: "In 'Attack on Titan', come si chiama il protagonista?", answers: ["Eren", "Levi", "Armin", "Mikasa"], correct: "Eren" },
-  { question: "Chi è il creatore di 'One Piece'?", answers: ["Eiichiro Oda", "Masashi Kishimoto", "Tite Kubo", "Akira Toriyama"], correct: "Eiichiro Oda" },
-  { question: "Chi dice la frase 'I am gonna be King of the Pirates'?", answers: ["Luffy", "Zoro", "Sanji", "Nami"], correct: "Luffy" }
-];
+(function() {
+    // 1. STILI AVANZATI (Dark Mode, Glitch e Distorsione)
+    const style = document.createElement('style');
+    style.textContent = `
+        #combo-counter {
+            position: absolute; top: 22%; right: 30px;
+            font-size: 45px; color: #00ffff; font-family: 'Courier New', monospace;
+            font-weight: bold; font-style: italic;
+            text-shadow: 2px 2px 0px #ff0044;
+            pointer-events: none; opacity: 0; z-index: 30;
+            transition: opacity 0.3s;
+        }
+        #glitch-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none; z-index: 5; opacity: 0.6;
+        }
+        .damage-flash {
+            animation: dark-red-flash 0.4s ease-out;
+        }
+        @keyframes dark-red-flash {
+            0% { box-shadow: inset 0 0 120px rgba(255, 0, 68, 0.6); }
+            100% { box-shadow: inset 0 0 0px rgba(255, 0, 68, 0); }
+        }
+        /* Effetto Distorsione Critica */
+        .critical-glitch {
+            animation: tv-shake 0.1s infinite;
+            filter: hue-rotate(90deg) contrast(1.2);
+        }
+        @keyframes tv-shake {
+            0% { transform: translate(1px, 1px) skew(0deg); }
+            20% { transform: translate(-2px, 0px) skew(1deg); }
+            40% { transform: translate(1px, -1px) skew(-1deg); }
+            60% { transform: translate(-1px, 1px) skew(0deg); }
+            100% { transform: translate(0px, 0px) skew(0deg); }
+        }
+    `;
+    document.head.appendChild(style);
 
-let currentQuestion = 0;
-let scoreQuiz = 0;
-const quizContainer = document.getElementById('quiz-container');
+    // 2. ELEMENTI UI
+    const comboEl = document.createElement('div');
+    comboEl.id = 'combo-counter';
+    document.body.appendChild(comboEl);
 
-function showStartScreen() {
-  quizContainer.innerHTML = `
-    <img id="quiz-image" src="marino2.jpg" alt="Immagine quiz">
-    <h2>Benvenuto al Quiz Anime e Manga!</h2>
-    <button id="start-btn">Quiz Anime</button>
-  `;
-  document.getElementById('start-btn').onclick = () => {
-    currentQuestion = 0;
-    scoreQuiz = 0;
-    showQuestion();
-  };
-}
+    const glitch = document.createElement('div');
+    glitch.id = 'glitch-overlay';
+    document.body.appendChild(glitch);
 
-function showQuestion() {
-  const q = quiz[currentQuestion];
-  quizContainer.innerHTML = `
-    <img id="quiz-image" src="marino2.jpg" alt="Immagine quiz">
-    <h2>${q.question}</h2>
-    <div id="answers"></div>
-  `;
-  const answersDiv = document.getElementById('answers');
-  q.answers.forEach(answer => {
-    const button = document.createElement('button');
-    button.textContent = answer;
-    button.onclick = () => checkAnswer(answer);
-    answersDiv.appendChild(button);
-  });
-}
+    // 3. AUDIO SINTETICO
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSound(freq, type, duration, vol = 0.05) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freq / 3, audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + duration);
+    }
 
-function checkAnswer(answer) {
-  if(answer === quiz[currentQuestion].correct) scoreQuiz++;
-  currentQuestion++;
-  if(currentQuestion < quiz.length) {
-    showQuestion();
-  } else {
-    showScore();
-  }
-}
+    // 4. MONITORAGGIO STATO (Senza alterare il gioco originale)
+    let combo = 0;
+    let lastHitTime = 0;
+    const bBar = document.getElementById('boss-health-bar');
+    const pBar = document.getElementById('player-health-bar');
 
-function showScore() {
-  const percent = (scoreQuiz / quiz.length) * 100;
-  let message = '';
-  if(percent >= 70) {
-    message = `🎉 Complimenti! Hai risposto correttamente al ${scoreQuiz} su ${quiz.length} (${Math.round(percent)}%) delle domande!`;
-  } else {
-    message = `🙂 Hai risposto correttamente a ${scoreQuiz} su ${quiz.length} (${Math.round(percent)}%). Non preoccuparti, puoi sempre migliorare!`;
-  }
+    const bossObserver = new MutationObserver(() => {
+        const now = Date.now();
+        const healthPercent = parseFloat(bBar.style.width);
+        
+        // Gestione Combo
+        if (now - lastHitTime < 850) {
+            combo++;
+            updateComboUI();
+        } else {
+            combo = 1;
+        }
+        lastHitTime = now;
+        playSound(180 + (combo * 20), 'sine', 0.2);
 
-  quizContainer.innerHTML = `
-    <img id="quiz-image" src="marino2.jpg" alt="Immagine quiz">
-    <h2>${message}</h2>
-    <button id="restart-btn">Ricomincia</button>
-  `;
-  document.getElementById('restart-btn').onclick = showStartScreen;
-}
+        // Effetto Distorsione TV se la vita è bassa (< 25%)
+        if (healthPercent < 25) {
+            document.body.classList.add('critical-glitch');
+            if (Math.random() > 0.8) playSound(60, 'sawtooth', 0.1, 0.03); // Static noise
+        }
+    });
 
-// Avvio quiz
-showStartScreen();
+    const playerObserver = new MutationObserver(() => {
+        document.body.classList.remove('damage-flash');
+        void document.body.offsetWidth;
+        document.body.classList.add('damage-flash');
+        playSound(40, 'triangle', 0.6, 0.15);
+        combo = 0;
+        comboEl.style.opacity = '0';
+    });
 
-/* ==================== SNAKE GAME ==================== */
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const box = 20;
-let snake = [];
-let food = {};
-let direction = '';
-let scoreSnake = 0;
-let gameInterval = null;
+    bossObserver.observe(bBar, { attributes: true });
+    playerObserver.observe(pBar, { attributes: true });
 
-function initSnake() {
-  snake = [{x: 8 * box, y: 8 * box}];
-  direction = '';
-  scoreSnake = 0;
-  document.getElementById('score').textContent = 'Punteggio: 0';
-  placeFood();
-  if(gameInterval) clearInterval(gameInterval);
-  gameInterval = setInterval(draw, 100);
-}
+    function updateComboUI() {
+        if (combo > 1) {
+            comboEl.innerText = `STREAK X${combo}`;
+            comboEl.style.opacity = '1';
+            comboEl.style.transform = `scale(${Math.min(1.4, 1 + combo * 0.04)}) translateY(${Math.sin(Date.now()) * 5}px)`;
+        }
+    }
 
-function placeFood() {
-  food.x = Math.floor(Math.random() * 20) * box;
-  food.y = Math.floor(Math.random() * 20) * box;
-}
+    // 5. MATRIX BACKGROUND (Dark Cyan)
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.style.cssText = 'position:fixed; top:0; left:0; z-index:-1; opacity:0.4;';
+    document.body.appendChild(bgCanvas);
+    const ctx = bgCanvas.getContext('2d');
 
-document.addEventListener('keydown', changeDirection);
-function changeDirection(event) {
-  if(event.key === "ArrowUp" && direction !== 'DOWN') direction = 'UP';
-  else if(event.key === "ArrowDown" && direction !== 'UP') direction = 'DOWN';
-  else if(event.key === "ArrowLeft" && direction !== 'RIGHT') direction = 'LEFT';
-  else if(event.key === "ArrowRight" && direction !== 'LEFT') direction = 'RIGHT';
-  else if(event.key === "w" && direction !== 'DOWN') direction = 'UP';
-  else if(event.key === "s" && direction !== 'UP') direction = 'DOWN';
-  else if(event.key === "a" && direction !== 'RIGHT') direction = 'LEFT';
-  else if(event.key === "d" && direction !== 'LEFT') direction = 'RIGHT';
-}
+    let particles = [];
+    const resize = () => { bgCanvas.width = window.innerWidth; bgCanvas.height = window.innerHeight; };
+    window.addEventListener('resize', resize);
+    resize();
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#222";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+    class Bit {
+        constructor() { this.reset(); }
+        reset() {
+            this.x = Math.random() * bgCanvas.width;
+            this.y = Math.random() * -bgCanvas.height;
+            this.v = Math.random() * 3 + 1;
+            this.char = Math.random() > 0.5 ? "0" : "1";
+        }
+        draw() {
+            this.y += this.v;
+            if (this.y > bgCanvas.height) this.reset();
+            ctx.fillStyle = "#00ffff";
+            ctx.font = "12px monospace";
+            ctx.fillText(this.char, this.x, this.y);
+        }
+    }
 
-  ctx.fillStyle = "#e74c3c";
-  ctx.fillRect(food.x, food.y, box, box);
+    for(let i=0; i<50; i++) particles.push(new Bit());
 
-  for(let i=0;i<snake.length;i++){
-    ctx.fillStyle = i===0 ? "#3498db" : "#2980b9";
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
-  }
+    function loop() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+        ctx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+        particles.forEach(p => p.draw());
+        requestAnimationFrame(loop);
+    }
+    loop();
 
-  let snakeX = snake[0].x;
-  let snakeY = snake[0].y;
+    // 6. INTERAZIONE UTENTE
+    window.addEventListener('mousedown', () => {
+        if(navigator.vibrate) navigator.vibrate(15);
+        playSound(900, 'sine', 0.04, 0.02);
+    });
 
-  if(direction === 'UP') snakeY -= box;
-  else if(direction === 'DOWN') snakeY += box;
-  else if(direction === 'LEFT') snakeX -= box;
-  else if(direction === 'RIGHT') snakeX += box;
-
-  if(snakeX === food.x && snakeY === food.y){
-    scoreSnake++;
-    document.getElementById('score').textContent = 'Punteggio: ' + scoreSnake;
-    placeFood();
-  } else {
-    snake.pop();
-  }
-
-  let newHead = {x: snakeX, y: snakeY};
-
-  if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)){
-    clearInterval(gameInterval);
-    alert("Game Over! Punteggio: " + scoreSnake);
-    return;
-  }
-
-  snake.unshift(newHead);
-}
-
-function collision(head, array){
-  for(let i=0;i<array.length;i++){
-    if(head.x === array[i].x && head.y === array[i].y) return true;
-  }
-  return false;
-}
-
-document.getElementById('start-snake').addEventListener('click', initSnake);
+    console.log("BOSSENGE: ACTIVE");
+})();
 </script>
+<script>
+(function() {
+    // 1. BLOCCO DEL TEMPO (Freeze Logic)
+    // Salviamo le funzioni originali per "congelare" il gioco
+    const _requestAnimationFrame = window.requestAnimationFrame;
+    let gameStarted = false;
 
-<div style="text-align:center; margin-bottom: 15px; color:#555; font-size:14px;">
-  ⚠️ Il gioco Snake è giocabile solo da PC con tastiera
-</div>
+    // Sovrascriviamo il loop di animazione finché non premiamo Start
+    window.requestAnimationFrame = function(callback) {
+        if (!gameStarted) {
+            // Se il gioco non è avviato, rimandiamo l'esecuzione
+            setTimeout(() => window.requestAnimationFrame(callback), 100);
+            return;
+        }
+        return _requestAnimationFrame(callback);
+    };
 
+    // 2. STILI SCHERMATA START
+    const style = document.createElement('style');
+    style.textContent = `
+        #start-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 10000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            font-family: 'Courier New', monospace; transition: opacity 1s;
+        }
+        .vox-title { color: #ff0044; font-size: clamp(30px, 8vw, 60px); letter-spacing: 15px; margin-bottom: 40px; text-shadow: 0 0 20px #ff0044; }
+        .btn-init {
+            background: transparent; color: #00ffff; border: 2px solid #00ffff;
+            padding: 20px 60px; font-size: 18px; cursor: pointer;
+            letter-spacing: 3px; transition: 0.3s;
+        }
+        .btn-init:hover { background: #00ffff; color: #000; box-shadow: 0 0 40px #00ffff; }
+        .status-load { color: #333; margin-top: 25px; font-size: 10px; text-transform: uppercase; }
+    `;
+    document.head.appendChild(style);
 
-<!-- Pulsante Home -->
-<div style="text-align: center; margin-bottom: 30px;">
-  <a href="index.html">
-    <button>Home</button>
-  </a>
-</div>
+    // 3. CREAZIONE UI
+    const overlay = document.createElement('div');
+    overlay.id = 'start-overlay';
+    overlay.innerHTML = `
+        <div class="vox-title">THE BOSSENGE</div>
+        <button class="btn-init" id="start-trigger">ATTIVA LA ROTAZIONE IN ORIZZONTALE E COLPISCI GLI OCCHI</button>
+        <div class="status-load">Hardware check: OK | Connection: SECURE | Target: VOX</div>
+    `;
+    document.body.appendChild(overlay);
 
+    // 4. ATTIVAZIONE GIOCO
+    document.getElementById('start-trigger').addEventListener('click', function() {
+        gameStarted = true; // Sblocca il requestAnimationFrame
+        overlay.style.opacity = '0';
+        
+        // Sblocca l'audio per i browser
+        const aCtx = new (window.AudioContext || window.webkitAudioContext)();
+        aCtx.resume();
 
+        setTimeout(() => {
+            overlay.remove();
+        }, 1000);
+
+        // Feedback vibrazione
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+        console.log("GAME_UNFROZEN: Critical hit sequences online.");
+    });
+})();
+</script>
+<script>
+(function() {
+    const statusText = document.getElementById('status-text');
+    const gameOverScreen = document.getElementById('game-over');
+    const bossBar = document.getElementById('boss-health-bar');
+
+    // Funzione per calcolare e mostrare il risultato finale
+    const showFinalScore = () => {
+        // Calcoliamo la percentuale di danno inflitto
+        // Se la barra è al 100%, il danno è 0%. Se la barra è allo 0%, il danno è 100%.
+        const currentHealthPercent = parseFloat(bossBar.style.width) || 0;
+        const damageDealt = (100 - currentHealthPercent).toFixed(1);
+        
+        // Creiamo il contenitore del punteggio se non esiste
+        let scoreDisplay = document.getElementById('final-bossenge-score');
+        if (!scoreDisplay) {
+            scoreDisplay = document.createElement('div');
+            scoreDisplay.id = 'final-vox-score';
+            scoreDisplay.style.cssText = `
+                font-size: 20px;
+                color: #00ffff;
+                margin-top: 20px;
+                border-top: 1px solid #ff0044;
+                padding-top: 15px;
+                text-shadow: 0 0 10px #00ffff;
+            `;
+            // Inseriamo il punteggio prima del pulsante REBOOT
+            statusText.after(scoreDisplay);
+        }
+
+        // Messaggio personalizzato in base al risultato
+        if (statusText.innerText === "BOSSENGE SCONFITTO") {
+            scoreDisplay.innerHTML = `DANNI SUBITI DAL BOSS: 100%<br><span style="font-size:12px">SYSTEM_ERASED</span>`;
+        } else {
+            scoreDisplay.innerHTML = `DANNI SUBITI DAL BOSS: ${damageDealt}%<br><span style="font-size:12px"SALUTE RESTANTE AL BOSS: ${currentHealthPercent.toFixed(1)}%</span>`;
+        }
+    };
+
+    // Osservatore per rilevare quando appare la schermata di Game Over
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'style') {
+                const display = window.getComputedStyle(gameOverScreen).display;
+                if (display === 'block') {
+                    showFinalScore();
+                }
+            }
+        });
+    });
+
+    observer.observe(gameOverScreen, { attributes: true });
+})();
+</script>
 </body>
 </html>
-
